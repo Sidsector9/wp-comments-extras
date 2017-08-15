@@ -4,6 +4,7 @@
  */
 
 if ( ! class_exists( 'WP_Comments_extras' ) ) {
+
 	/**
 	 * Adds the Voting buttons in the comment section and
 	 * implements functions required to set and get votes.
@@ -22,9 +23,9 @@ if ( ! class_exists( 'WP_Comments_extras' ) ) {
 		 * Enqueues necessary styles and script, and adds relevent action and filter hooks.
 		 */
 		public function __construct() {
-			wp_enqueue_style( 'wce-style', plugins_url( '/assets/css/wce-style.css', __FILE__ ), null, null, null );
+			wp_enqueue_style( 'wce-style', plugins_url( '/assets/css/wce-style.min.css', __FILE__ ), null, null, null );
 			wp_enqueue_style( 'font-awesome', 'https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css' );
-			wp_enqueue_script( 'wce-script', plugins_url( '/assets/js/src/wce-script.js', __FILE__ ), array( 'jquery' ), null, true );
+			wp_enqueue_script( 'wce-script', plugins_url( '/assets/js/src/wce-script.min.js', __FILE__ ), array( 'jquery' ), null, true );
 			wp_localize_script( 'wce-script', 'wce_ajax_url', admin_url( 'admin-ajax.php' ) );
 			add_action( 'wp_ajax_save_votes', array( $this, 'save_votes' ) );
 			add_action( 'wp_ajax_nopriv_save_votes', array( $this, 'save_votes' ) );

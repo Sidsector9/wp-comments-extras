@@ -1,4 +1,3 @@
-assets/css/scss
+assets/**/*.css
 node_modules
-*.css
 *.min.js
