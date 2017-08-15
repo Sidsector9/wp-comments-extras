@@ -1,4 +1,5 @@
 <?php
+
 if ( ! class_exists( 'WP_Comments_Extras_Admin_Settings' ) ) {
 
 	/**
