@@ -1,7 +1,17 @@
 <?php
 /**
  * Plugin Name: WP Comments Extras
+ * Plugin URI: https://github.com/Sidsector9/wp-comments-extras/
+ * Description: This plugin adds voting feature to comments
+ * Version: 1.0.0
+ * Author: Siddharth Thevaril
+ * Author URI: profiles.wordpress.org/nomnom99/
+ * Text Domain: wce
+ *
+ * @package WCE
  */
+
+namespace Sector9\WCE;
 
 if ( ! class_exists( 'WP_Comments_extras' ) ) {
 
@@ -19,13 +29,15 @@ if ( ! class_exists( 'WP_Comments_extras' ) ) {
 		 */
 		private $user_id = null;
 
+		private $list_users_flag = null;
+
 		/**
 		 * Enqueues necessary styles and script, and adds relevent action and filter hooks.
 		 */
 		public function __construct() {
 			wp_enqueue_style( 'wce-style', plugins_url( '/assets/css/wce-style.min.css', __FILE__ ), null, null, null );
 			wp_enqueue_style( 'font-awesome', 'https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css' );
-			wp_enqueue_script( 'wce-script', plugins_url( '/assets/js/src/wce-script.min.js', __FILE__ ), array( 'jquery' ), null, true );
+			wp_enqueue_script( 'wce-script', plugins_url( '/assets/js/src/wce-script.min.js', __FILE__ ), array( 'jquery', 'wp-util' ), null, true );
 			wp_localize_script( 'wce-script', 'wce_ajax_url', admin_url( 'admin-ajax.php' ) );
 			wp_localize_script(
 				'wce-script',
@@ -36,16 +48,23 @@ if ( ! class_exists( 'WP_Comments_extras' ) ) {
 			);
 			add_action( 'wp_ajax_save_votes', array( $this, 'save_votes' ) );
 			add_action( 'wp_ajax_nopriv_save_votes', array( $this, 'save_votes' ) );
-			add_action( 'init', array( $this, 'get_user_id' ) );
+			add_action( 'init', array( $this, 'set_info_on_init' ) );
 			add_filter( 'comment_reply_link_args', array( $this, 'add_voting_buttons' ), 10, 2 );
 		}
 
 		/**
-		 * Sets the value of $user_id during init.
+		 * Sets the values at init.
 		 */
-		public function get_user_id() {
-			$this->user_id = get_current_user_id();
+		public function set_info_on_init() {
+			$this->user_id    = get_current_user_id();
+			$this->list_users_flag = get_option( 'wce-list-users' );
 			wp_localize_script( 'wce-script', 'is_user_logged_in', is_user_logged_in() ? 'yes' : 'no' );
+
+			if ( 'on' === $this->list_users_flag ) {
+				add_action( 'wp_ajax_list_voters', array( $this, 'list_voters' ) );
+				add_action( 'wp_ajax_nopriv_list_voters', array( $this, 'list_voters' ) );
+				add_action( 'wp_footer', array( $this, 'tmpl_in_footer' ) );
+			}
 		}
 
 		/**
@@ -76,7 +95,17 @@ if ( ! class_exists( 'WP_Comments_extras' ) ) {
 				$vote = null;
 				$vote_icon = '<i class="fa fa-thumbs-o-down" aria-hidden="true"></i>';
 			}
-			$args['after'] .= '<span class="wce-vote-button ' . $voted . '" data-comment-id="' . $comment_id . '" data-vote-type="down">' . $vote_icon . '<span class="wce-vote-count">' . $this->count_votes( $users, 'down' ) . '</span></span></div>';
+			$args['after'] .= '<span class="wce-vote-button ' . $voted . '" data-comment-id="' . $comment_id . '" data-vote-type="down">' . $vote_icon . '<span class="wce-vote-count">' . $this->count_votes( $users, 'down' ) . '</span></span>';
+
+			if ( 'on' === $this->list_users_flag ) {
+				$args['after'] .= '<span class="three-dots-container" title="' . esc_html( 'Show list of voters' ) . '" data-comment-id="' . $comment_id . '"><span></span><span></span><span></span></span>';
+
+				$args['after'] .= '<div class="wce-voter-list-overlay"></div>';
+
+				$args['after'] .= '<span class="wce-voter-list"><div>' . esc_html__( 'Voters', 'wce' ) . '<span class="close-voter-list"><i class="fa fa-times" aria-hidden="true"></i></span></div></span>';
+			}
+
+			$args['after'] .= '</div>';
 
 			return $args;
 		}
@@ -135,6 +164,39 @@ if ( ! class_exists( 'WP_Comments_extras' ) ) {
 			wp_die();
 		}
 
+		public function list_voters() {
+			$comment_id = absint( filter_input( INPUT_POST, 'comment_id', FILTER_SANITIZE_STRING ) );
+			$users      = get_comment_meta( $comment_id, 'votes', true );
+			$voter_data = array();
+
+			foreach ( $users as $user_id => $vote_type ) {
+				$user_obj = get_user_by( 'ID', $user_id );
+				$voter_data[] = array(
+					'voter_name' => $user_obj->display_name,
+					'vote_type'  => $vote_type,
+				);
+			}
+			echo wp_json_encode( $voter_data );
+			wp_die();
+		}
+
+		public function tmpl_in_footer() {
+			?>
+			<script type="text/html" id="tmpl-list-voters">
+				<div class="voter-item">
+					<div class="wce-voter-name">{{ data.voter_name }}</div>
+					<div class="wce-vote-type">
+					<# if ( 'up' === data.vote_type ) { #>
+						<i class="fa fa-thumbs-up wce-voter-up" aria-hidden="true"></i>
+					<# } else { #>
+						<i class="fa fa-thumbs-down wce-voter-down" aria-hidden="true"></i>
+					<# } #>
+					</div>
+				</div>
+			</script>
+			<?php
+		}
+
 		/**
 		 * Counts the number of votes of a given type.
 		 *
@@ -150,3 +212,5 @@ if ( ! class_exists( 'WP_Comments_extras' ) ) {
 
 	$wce_init = new WP_Comments_extras();
 }
+
+require_once 'includes/admin/admin-settings.php';

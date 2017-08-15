@@ -1,12 +1,23 @@
 ( function( $ ) {
 
 	var self = {
-		vote_button : '',
+		vote_button        : '',
+		list_voters_button : '',
+		close_voter_list   : '',
+		voters_list        : '',
+		voters_overlay     : '',
 	};
 
 	self.init = function() {
-		self.vote_button = $( '.wce-vote-button' );
+		self.vote_button        = $( '.wce-vote-button' );
+		self.list_voters_button = $( '.three-dots-container' );
+		self.close_voter_list   = $( '.close-voter-list' );
+		self.voters_list        = $( '.wce-voter-list' );
+		self.voters_overlay     = $( '.wce-voter-list-overlay' );
+
 		self.vote_click();
+		self.list_voters_button_click();
+		self.close_voter_list_click();
 	};
 
 	self.vote_click = function() {
@@ -102,6 +113,49 @@
 			});
 		});
 	};
+
+	self.list_voters_button_click = function() {
+		self.list_voters_button.on( 'click', function() {
+			var that        = $( this );
+			var comment_id  = that.data( 'comment-id' );
+			var voters_list = that.siblings( '.wce-voter-list' );
+			var template    = wp.template( 'list-voters' );
+
+			$.ajax({
+				url: wce_ajax_url,
+				type: 'POST',
+				data: {
+					action     : 'list_voters',
+					comment_id : comment_id,
+				}
+			})
+			.done( function( response ) {
+
+					voters_list.show();
+
+					$( '.wce-voter-list-overlay' ).fadeIn();
+
+					var parsed = JSON.parse( response );
+
+					for( var i = 0; i < parsed.length; i++ ) {
+						voters_list.append(
+							template({
+								voter_name : parsed[i].voter_name,
+								vote_type  : parsed[i].vote_type,
+							})
+						);
+					}
+			});
+		});
+	}
+
+	self.close_voter_list_click = function() {
+		self.close_voter_list.on( 'click', function() {
+			self.voters_list.fadeOut();
+			self.voters_overlay.fadeOut();
+			self.voters_list.find( '.voter-item' ).remove();
+		});
+	}
 
 	return self.init();
 
