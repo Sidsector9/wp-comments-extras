@@ -13,7 +13,7 @@
 		self.vote_button.on( 'click', function() {
 
 			if ( 'no' === is_user_logged_in ) {
-				alert( 'You need to log in to vote' );
+				alert( wce_messages.login_false );
 				return;
 			}
 

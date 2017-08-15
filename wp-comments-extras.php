@@ -27,6 +27,13 @@ if ( ! class_exists( 'WP_Comments_extras' ) ) {
 			wp_enqueue_style( 'font-awesome', 'https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css' );
 			wp_enqueue_script( 'wce-script', plugins_url( '/assets/js/src/wce-script.min.js', __FILE__ ), array( 'jquery' ), null, true );
 			wp_localize_script( 'wce-script', 'wce_ajax_url', admin_url( 'admin-ajax.php' ) );
+			wp_localize_script(
+				'wce-script',
+				'wce_messages',
+				array(
+					'login_false' => esc_html__( 'You need to log in to vote', 'wce' ),
+				)
+			);
 			add_action( 'wp_ajax_save_votes', array( $this, 'save_votes' ) );
 			add_action( 'wp_ajax_nopriv_save_votes', array( $this, 'save_votes' ) );
 			add_action( 'init', array( $this, 'get_user_id' ) );
