@@ -1,7 +1,17 @@
 <?php
 /**
  * Plugin Name: WP Comments Extras
+ * Plugin URI: https://github.com/Sidsector9/wp-comments-extras/
+ * Description: This plugin adds voting feature to comments
+ * Version: 1.0.0
+ * Author: Siddharth Thevaril
+ * Author URI: profiles.wordpress.org/nomnom99/
+ * Text Domain: wce
+ *
+ * @package WCE
  */
+
+namespace Sector9\WCE;
 
 if ( ! class_exists( 'WP_Comments_extras' ) ) {
 
