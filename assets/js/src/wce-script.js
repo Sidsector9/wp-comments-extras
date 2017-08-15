@@ -26,9 +26,9 @@
 				url : wce_ajax_url,
 				type: 'POST',
 				data: {
-					action: 'save_votes',
-					comment_id: comment_id,
-					vote_type: vote_type,
+					action     : 'save_votes',
+					comment_id : comment_id,
+					vote_type  : vote_type,
 				},
 			})
 			.done( function( response ) {
