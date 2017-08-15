@@ -1,12 +1,16 @@
 .wce-vote-button[data-vote-type="up"] {
-	color: green;
+	color: #27ae60; // green
 }
 
 .wce-vote-button[data-vote-type="down"] {
-	color: red;
+	color: #e74c3c; // red
 }
 
 .wce-vote-button {
 	cursor: pointer;
 	margin-left: 1.25rem;
+}
+
+.wce-vote-count {
+    margin-left: .35rem;
 }

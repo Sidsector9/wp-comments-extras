@@ -26,7 +26,7 @@
 				},
 			})
 			.done( function( response ) {
-				if ( $.isArray( response.data ) && 'vote switched' === response.data[0] ) {
+				if ( true === response.success && $.isArray( response.data ) && 'vote switched' === response.data[0] ) {
 					if ( 'up' === response.data[1] ) {
 						that
 							.siblings( '.wce-vote-button' )
@@ -38,6 +38,15 @@
 							.find( 'i' )
 							.removeClass( 'fa-thumbs-o-up' )
 							.addClass( 'fa-thumbs-up' );
+
+						that
+							.find( '.wce-vote-count' )
+							.text( response.data[2].count_up );
+
+						that
+							.siblings( '.wce-vote-button' )
+							.find( '.wce-vote-count' )
+							.text( response.data[2].count_down );
 					}
 
 					if ( 'down' === response.data[1] ) {
@@ -51,6 +60,15 @@
 							.find( 'i' )
 							.removeClass( 'fa-thumbs-o-down' )
 							.addClass( 'fa-thumbs-down' );
+
+						that
+							.find( '.wce-vote-count' )
+							.text( response.data[2].count_down );
+
+						that
+							.siblings( '.wce-vote-button' )
+							.find( '.wce-vote-count' )
+							.text( response.data[2].count_up );
 					}
 				} else {
 					if ( 'up' === vote_type ) {
@@ -58,6 +76,10 @@
 							.find( 'i' )
 							.removeClass( 'fa-thumbs-o-up' )
 							.addClass( 'fa-thumbs-up' );
+
+						that
+							.find( '.wce-vote-count' )
+							.text( response.data.count );
 					}
 
 					if ( 'down' === vote_type ) {
@@ -65,6 +87,10 @@
 							.find( 'i' )
 							.removeClass( 'fa-thumbs-o-down' )
 							.addClass( 'fa-thumbs-down' );
+
+						that
+							.find( '.wce-vote-count' )
+							.text( response.data.count );
 					}
 				}
 			});
