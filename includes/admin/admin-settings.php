@@ -1,11 +1,21 @@
 <?php
-
 if ( ! class_exists( 'WP_Comments_Extras_Admin_Settings' ) ) {
+
+	/**
+	 * This class generates the settings page.
+	 */
 	class WP_Comments_Extras_Admin_Settings {
+
+		/**
+		 * Constructor
+		 */
 		public function __construct() {
 			add_action( 'admin_menu', array( $this, 'wce_settings_page' ) );
 		}
 
+		/**
+		 * Add a menu page.
+		 */
 		public function wce_settings_page() {
 			add_menu_page(
 				'WP Comments Extras Settings',
@@ -17,6 +27,9 @@ if ( ! class_exists( 'WP_Comments_Extras_Admin_Settings' ) ) {
 			add_action( 'admin_init', array( $this, 'wce_sections_and_fields' ) );
 		}
 
+		/**
+		 * Render settings page.
+		 */
 		public function render_settings_page() {
 			?>
 			<form action="options.php" method="POST">
@@ -27,6 +40,9 @@ if ( ! class_exists( 'WP_Comments_Extras_Admin_Settings' ) ) {
 			<?php
 		}
 
+		/**
+		 * Sections and Fields.
+		 */
 		public function wce_sections_and_fields() {
 			add_settings_section(
 				'wce-feature-section',
@@ -49,10 +65,16 @@ if ( ! class_exists( 'WP_Comments_Extras_Admin_Settings' ) ) {
 			);
 		}
 
+		/**
+		 * Render title.
+		 */
 		public function render_feature_list_section() {
 			printf( '<h4>%s</h4>', esc_html__( 'Voting configuration:', 'wce' ) );
 		}
 
+		/**
+		 * Render checkbox.
+		 */
 		public function render_list_voters() {
 			$option = get_option( 'wce-list-users' );
 			?>
@@ -61,5 +83,5 @@ if ( ! class_exists( 'WP_Comments_Extras_Admin_Settings' ) ) {
 		}
 	}
 
-		new WP_Comments_Extras_Admin_Settings();
+	new WP_Comments_Extras_Admin_Settings();
 }
