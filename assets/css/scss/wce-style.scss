@@ -12,5 +12,95 @@
 }
 
 .wce-vote-count {
-    margin-left: .35rem;
+	margin-left: .35rem;
+}
+
+.three-dots-container {
+	display: inline-block;
+	margin-left: 1.25rem;
+	cursor: pointer;
+
+	span {
+		display: inline-block;
+		vertical-align: middle;
+		width: 6px;
+		height: 6px;
+		border-radius: 50%;
+		background-color: #ccc;
+		margin-right: 2px;
+		transition: background-color 0.3s ease;
+	}
+
+	&:hover span {
+		background-color: #aaa;
+		transition: background-color 0.3s ease;
+	}
+}
+
+.wce-voter-list {
+	display: none;
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	width: 300px;
+	max-height: 400px;
+	background: #fff;
+	border: 1px solid #aaa;
+	border-radius: 5px;
+	overflow: hidden;
+	transform: translate(-50%, -50%);
+	box-shadow: 0 5px 15px rgba(0, 0, 0, 0.25);
+    overflow-y: auto;
+    z-index: 10;
+
+	.close-voter-list {
+	    float: right;
+	    cursor: pointer;
+	}
+
+	.wce-voter-up {
+		color: #27ae60;
+	}
+
+	.wce-voter-down {
+		color: #e74c3c;
+	}
+
+	& > div {
+		border-bottom: 1px solid #aaa;
+	    padding: .5rem .5rem;
+
+	    &:first-child {
+	    	font-weight: 900;
+	    }
+
+		&:after {
+			display: block;
+			content: '';
+			clear: both;
+		}
+
+		&:last-child {
+			border-bottom: none;
+		}
+
+		.wce-voter-name {
+			float: left;
+		}
+
+		.wce-vote-type {
+			float: right;
+		}
+	}
+}
+
+.wce-voter-list-overlay {
+	display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba( 0, 0, 0, 0.25 );
+    z-index: 1;
 }
