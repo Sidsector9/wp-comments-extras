@@ -38,6 +38,7 @@ if ( ! class_exists( 'WP_Comments_extras' ) ) {
 		 */
 		public function get_user_id() {
 			$this->user_id = get_current_user_id();
+			wp_localize_script( 'wce-script', 'is_user_logged_in', is_user_logged_in() ? 'yes' : 'no' );
 		}
 
 		/**

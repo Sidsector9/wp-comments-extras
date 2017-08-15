@@ -11,6 +11,12 @@
 
 	self.vote_click = function() {
 		self.vote_button.on( 'click', function() {
+
+			if ( 'no' === is_user_logged_in ) {
+				alert( 'You need to log in to vote' );
+				return;
+			}
+
 			var that       = $( this );
 			var wce        = $( '.wce-vote-button' );
 			var comment_id = that.data( 'comment-id' );
