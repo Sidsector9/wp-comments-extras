@@ -53,8 +53,8 @@ if ( ! class_exists( 'WP_Comments_Extras_Admin_Settings' ) ) {
 			);
 
 			add_settings_field(
-				'wce-list-users',
-				esc_html__( 'Show list of voters', 'wce' ),
+				'wce-vote-settings',
+				esc_html__( 'Vote settings', 'wce' ),
 				array( $this, 'render_list_voters' ),
 				'wce-settings',
 				'wce-feature-section'
@@ -62,7 +62,7 @@ if ( ! class_exists( 'WP_Comments_Extras_Admin_Settings' ) ) {
 
 			register_setting(
 				'wce-settings',
-				'wce-list-users'
+				'wce-vote-settings'
 			);
 		}
 
@@ -77,9 +77,17 @@ if ( ! class_exists( 'WP_Comments_Extras_Admin_Settings' ) ) {
 		 * Render checkbox.
 		 */
 		public function render_list_voters() {
-			$option = get_option( 'wce-list-users' );
+			$option = get_option( 'wce-vote-settings' );
 			?>
-			<input name="wce-list-users" type="checkbox" <?php checked( 'on', $option, true )?>>
+			<p>
+			<input name="wce-vote-settings[list-voters]" id="wce-vote-settings[list-voters]" type="checkbox" <?php checked( 'on', $option['list-voters'], true )?>>
+			<label for="wce-vote-settings[list-voters]">Enable list voters button</label>
+			</p>
+
+			<p>
+			<input name="wce-vote-settings[user-self-vote]" id="wce-vote-settings[user-self-vote]" type="checkbox" <?php checked( 'on', $option['user-self-vote'], true )?>>
+			<label for="wce-vote-settings[user-self-vote]">User can vote their own comment</label>
+			</p>
 			<?php
 		}
 	}

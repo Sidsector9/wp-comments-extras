@@ -24,6 +24,12 @@ if ( ! class_exists( 'WP_Comments_extras' ) ) {
 		 */
 		private $list_voters_flag = null;
 
+		private $wce_messages = array();
+
+		private $user_self_vote = null;
+
+		private $options = null;
+
 		/**
 		 * Enqueues necessary styles and script, and adds relevent action and filter hooks.
 		 */
@@ -32,13 +38,6 @@ if ( ! class_exists( 'WP_Comments_extras' ) ) {
 			wp_enqueue_style( 'font-awesome', 'https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css' );
 			wp_enqueue_script( 'wce-script', plugins_url( '../../assets/js/src/wce-script.min.js', __FILE__ ), array( 'jquery', 'wp-util' ), null, true );
 			wp_localize_script( 'wce-script', 'wce_ajax_url', admin_url( 'admin-ajax.php' ) );
-			wp_localize_script(
-				'wce-script',
-				'wce_messages',
-				array(
-					'login_false' => esc_html__( 'You need to log in to vote', 'wce' ),
-				)
-			);
 			add_action( 'wp_ajax_save_votes', array( $this, 'save_votes' ) );
 			add_action( 'wp_ajax_nopriv_save_votes', array( $this, 'save_votes' ) );
 			add_action( 'init', array( $this, 'set_info_on_init' ) );
@@ -49,15 +48,20 @@ if ( ! class_exists( 'WP_Comments_extras' ) ) {
 		 * Sets the values at init.
 		 */
 		public function set_info_on_init() {
-			$this->user_id    = get_current_user_id();
-			$this->list_voters_flag = get_option( 'wce-list-users' );
+			$this->user_id          = get_current_user_id();
+			$this->options          = get_option( 'wce-vote-settings' );
+
+			$this->wce_messages['login_false'] = esc_html__( 'You need to log in to vote', 'wce' );
+
 			wp_localize_script( 'wce-script', 'is_user_logged_in', is_user_logged_in() ? 'yes' : 'no' );
 
-			if ( 'on' === $this->list_voters_flag ) {
+			if ( 'on' === $this->options['list-voters'] ) {
 				add_action( 'wp_ajax_list_voters', array( $this, 'list_voters' ) );
 				add_action( 'wp_ajax_nopriv_list_voters', array( $this, 'list_voters' ) );
 				add_action( 'wp_footer', array( $this, 'tmpl_in_footer' ) );
 			}
+
+			wp_localize_script( 'wce-script', 'wce_messages', $this->wce_messages );
 		}
 
 		/**
@@ -93,7 +97,7 @@ if ( ! class_exists( 'WP_Comments_extras' ) ) {
 
 			$args['after'] .= '<span class="wce-vote-button ' . $voted . '" data-comment-id="' . $comment_id . '" data-vote-type="down">' . $vote_icon . '<span class="wce-vote-count">' . $this->count_votes( $users, 'down' ) . '</span></span>';
 
-			if ( 'on' === $this->list_voters_flag ) {
+			if ( 'on' === $this->options['list-voters'] ) {
 				$args['after'] .= '<span class="three-dots-container" title="' . esc_html( 'Show list of voters' ) . '" data-comment-id="' . $comment_id . '"><span></span><span></span><span></span></span>';
 
 				$args['after'] .= '<div class="wce-voter-list-overlay"></div>';
@@ -116,6 +120,16 @@ if ( ! class_exists( 'WP_Comments_extras' ) ) {
 			$users      = get_comment_meta( $comment_id, 'votes', true );
 			$vote_data  = array();
 			$vote_other = 'up' === $vote_type ? 'up' : 'down';
+			$self_vote  = $this->options['user-self-vote'];
+
+			$comment_author_id = absint( get_comment( $comment_id, ARRAY_A )['user_id'] );
+
+			if ( empty( $self_vote ) && $comment_author_id === $user_id ) {
+				wp_send_json_error(
+					array( esc_html( 'You cannot vote your own comment!' ) )
+				);
+				return;
+			}
 
 			if ( empty( $users ) ) {
 				// The first vote.
