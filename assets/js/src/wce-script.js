@@ -43,6 +43,11 @@
 				},
 			})
 			.done( function( response ) {
+				if ( false === response.success && $.isArray( response.data ) ) {
+					alert( response.data[0] );
+					return;
+				}
+
 				if ( true === response.success && $.isArray( response.data ) && 'vote switched' === response.data[0] ) {
 					if ( 'up' === response.data[1] ) {
 						that
